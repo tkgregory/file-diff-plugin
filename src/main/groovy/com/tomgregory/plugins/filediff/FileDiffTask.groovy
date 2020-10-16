@@ -8,9 +8,9 @@ import org.gradle.api.tasks.TaskAction
 
 class FileDiffTask extends DefaultTask {
     @InputFile
-    Property<File> file1
+    final Property<File> file1 = project.objects.property(File)
     @InputFile
-    Property<File> file2
+    final Property<File> file2 = project.objects.property(File)
     @OutputFile
     File resultFile = new File("${project.buildDir}/diff-result.txt")
 
