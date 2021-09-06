@@ -1,32 +1,40 @@
 package com.tomgregory.plugins.filediff
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.provider.Property
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-class FileDiffTask extends DefaultTask {
+abstract class FileDiffTask extends DefaultTask {
     @InputFile
-    final Property<File> file1 = project.objects.property(File)
+    abstract RegularFileProperty getFile1()
     @InputFile
-    final Property<File> file2 = project.objects.property(File)
+    abstract RegularFileProperty getFile2()
     @OutputFile
-    File resultFile = new File("${project.buildDir}/diff-result.txt")
+    abstract RegularFileProperty getResultFile()
+
+    FileDiffTask() {
+        resultFile.convention(project.layout.buildDirectory.file('diff-result.txt'))
+    }
 
     @TaskAction
     def diff() {
         String diffResult
-        if (file1.get().size() == file2.get().size()) {
-            diffResult = "Files have the same size at ${file1.get().size()} bytes."
+        if (size(file1) == size(file2)) {
+            diffResult = "Files have the same size at ${file1.get().asFile.size()} bytes."
         } else {
-            File largestFile = file1.get().size() > file2.get().size() ? file1.get() : file2.get()
+            File largestFile = size(file1) > size(file2) ? file1.get().asFile: file2.get().asFile
             diffResult = "${largestFile.toString()} was the largest file at ${largestFile.size()} bytes."
         }
 
-        resultFile.write diffResult
+        resultFile.get().asFile.write diffResult
 
         println "File written to $resultFile"
         println diffResult
+    }
+
+    private long size(RegularFileProperty regularFileProperty) {
+        return regularFileProperty.get().asFile.size()
     }
 }

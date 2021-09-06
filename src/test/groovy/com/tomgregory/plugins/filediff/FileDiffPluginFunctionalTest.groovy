@@ -21,7 +21,7 @@ class FileDiffPluginFunctionalTest extends Specification {
         """
     }
 
-    def "can successfully diff 2 files"() {
+    def "can  diff 2 files of same length"() {
         given:
         File testFile1 = testProjectDir.newFile('testFile1.txt')
         File testFile2 = testProjectDir.newFile('testFile2.txt')
@@ -42,6 +42,32 @@ class FileDiffPluginFunctionalTest extends Specification {
 
         then:
         result.output.contains("Files have the same size")
+        result.task(":fileDiff").outcome == SUCCESS
+    }
+
+    def "can  diff 2 files of differing length"() {
+        given:
+        File testFile1 = testProjectDir.newFile('testFile1.txt')
+        testFile1.write('Short text')
+        File testFile2 = testProjectDir.newFile('testFile2.txt')
+        testFile2.write('Longer text')
+
+        buildFile << """
+            fileDiff {
+                file1 = file('${testFile1.getName()}')
+                file2 = file('${testFile2.getName()}')
+            }
+        """
+
+        when:
+        def result = GradleRunner.create()
+                .withProjectDir(testProjectDir.root)
+                .withArguments('fileDiff')
+                .withPluginClasspath()
+                .build()
+
+        then:
+        result.output.contains('testFile2.txt was the largest file at ' + 'Longer text'.bytes.length + ' bytes')
         result.task(":fileDiff").outcome == SUCCESS
     }
 }
