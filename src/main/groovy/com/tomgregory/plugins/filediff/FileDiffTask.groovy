@@ -34,7 +34,7 @@ abstract class FileDiffTask extends DefaultTask {
         println diffResult
     }
 
-    private long size(RegularFileProperty regularFileProperty) {
+    private static long size(RegularFileProperty regularFileProperty) {
         return regularFileProperty.get().asFile.size()
     }
 }

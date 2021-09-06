@@ -1,19 +1,18 @@
 package com.tomgregory.plugins.filediff
 
 import org.gradle.testkit.runner.GradleRunner
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
 class FileDiffPluginFunctionalTest extends Specification {
-    @Rule
-    TemporaryFolder testProjectDir = new TemporaryFolder()
+    @TempDir
+    File testProjectDir
     File buildFile
 
     def setup() {
-        buildFile = testProjectDir.newFile('build.gradle')
+        buildFile = new File(testProjectDir, 'build.gradle')
         buildFile << """
             plugins {
                 id 'com.tomgregory.file-diff'
@@ -23,8 +22,10 @@ class FileDiffPluginFunctionalTest extends Specification {
 
     def "can  diff 2 files of same length"() {
         given:
-        File testFile1 = testProjectDir.newFile('testFile1.txt')
-        File testFile2 = testProjectDir.newFile('testFile2.txt')
+        File testFile1 = new File(testProjectDir, 'testFile1.txt')
+        testFile1.createNewFile()
+        File testFile2 = new File(testProjectDir, 'testFile2.txt')
+        testFile2.createNewFile()
 
         buildFile << """
             fileDiff {
@@ -35,7 +36,7 @@ class FileDiffPluginFunctionalTest extends Specification {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('fileDiff')
                 .withPluginClasspath()
                 .build()
@@ -47,10 +48,10 @@ class FileDiffPluginFunctionalTest extends Specification {
 
     def "can  diff 2 files of differing length"() {
         given:
-        File testFile1 = testProjectDir.newFile('testFile1.txt')
-        testFile1.write('Short text')
-        File testFile2 = testProjectDir.newFile('testFile2.txt')
-        testFile2.write('Longer text')
+        File testFile1 = new File(testProjectDir, 'testFile1.txt')
+        testFile1 << 'Short text'
+        File testFile2 = new File(testProjectDir, 'testFile2.txt')
+        testFile2 << 'Longer text'
 
         buildFile << """
             fileDiff {
@@ -61,7 +62,7 @@ class FileDiffPluginFunctionalTest extends Specification {
 
         when:
         def result = GradleRunner.create()
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir)
                 .withArguments('fileDiff')
                 .withPluginClasspath()
                 .build()
