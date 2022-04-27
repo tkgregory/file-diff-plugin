@@ -2,5 +2,5 @@ An example Gradle plugin to accompany article *[Introduction to writing Gradle p
 
 [<img src="Introduction-to-Gradle-plugins-blog.png" width="500px"/>](https://tomgregory.com/introduction-to-gradle-plugins)
 
-## Need further support?
-Contact me if you need help at tom@tomgregory.com.
+## Need Gradle support?
+Contact me if you need help with Gradle at [tom@tomgregory.com](mailto:tom@tomgregory.com).
